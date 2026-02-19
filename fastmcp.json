@@ -1,0 +1,8 @@
+{
+  "server": "http://localhost:8000",
+  "protocol": "http",
+  "filesystem_module": "filesystem.py",
+  "options": {
+    "timeout": 30
+  }
+}
