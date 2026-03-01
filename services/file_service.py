@@ -1,24 +1,34 @@
 # services/file_service.py
+"""
+File service for handling file operations like scanning, renaming, and organizing.
+"""
+
 import os
 import shutil
 from models.models import RenameFileIn, ScanFilesIn, MoveFilesIn
+from services.path_validator import PathValidator
+
 
 class FileService:
+    """Service for handling file operations with security checks."""
 
-    ALLOWED_DIRECTORIES = [
-    os.path.abspath(r"C:\Users\User\Downloads\TRY")
-    ]
-
-    def is_path_safe(self, requested_path: str) -> bool:
-        target_path = os.path.abspath(requested_path)
-        for allowed_dir in self.ALLOWED_DIRECTORIES:
-            if target_path.startswith(allowed_dir + os.sep) or target_path == allowed_dir:
-                return True
-        return False
+    def __init__(self, allowed_directories=None):
+        """
+        Initialize FileService with allowed directories.
+        
+        Args:
+            allowed_directories: List of directories where operations are allowed.
+                                If None, defaults to a predefined list.
+        """
+        if allowed_directories is None:
+            allowed_directories = [os.path.abspath(r"C:\Users\User\Downloads\TRY")]
+        
+        self.path_validator = PathValidator(allowed_directories)
 
 
     def scan_files(self, input: ScanFilesIn):
-        if not self.is_path_safe(input.dir_path):
+        """Scan files in a directory with preview of contents."""
+        if not self.path_validator.is_path_safe(input.dir_path):
             return "שגיאה: הגישה לתיקייה זו חסומה מטעמי אבטחה. ניתן לגשת רק לתיקיות המוגדרות מראש."
         
         dir_path = input.dir_path
@@ -45,7 +55,8 @@ class FileService:
         return files_info
 
     def rename_file(self, input: RenameFileIn):
-        if not self.is_path_safe(input.dir_path):
+        """Rename a file in a safe directory."""
+        if not self.path_validator.is_path_safe(input.dir_path):
             return "שגיאה: הגישה לתיקייה זו חסומה מטעמי אבטחה. ניתן לגשת רק לתיקיות המוגדרות מראש."
         
         old_name = input.old_name
@@ -64,7 +75,8 @@ class FileService:
             return {"ok": False, "error": "File not found"}
 
     def move_files(self, input: MoveFilesIn):
-        if not self.is_path_safe(input.dir_path):
+        """Move files to subdirectories based on their file types."""
+        if not self.path_validator.is_path_safe(input.dir_path):
             return "שגיאה: הגישה לתיקייה זו חסומה מטעמי אבטחה. ניתן לגשת רק לתיקיות המוגדרות מראש."
         
         dir_path = input.dir_path
