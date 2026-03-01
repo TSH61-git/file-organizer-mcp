@@ -6,8 +6,7 @@ from models.models import RenameFileIn, ScanFilesIn, MoveFilesIn
 class FileService:
 
     ALLOWED_DIRECTORIES = [
-    os.path.abspath(r"C:\Users\User\Downloads\TRY"),
-    os.path.abspath(r"C:\Users\User\Downloads\SQL")
+    os.path.abspath(r"C:\Users\User\Downloads\TRY")
     ]
 
     def is_path_safe(self, requested_path: str) -> bool:
