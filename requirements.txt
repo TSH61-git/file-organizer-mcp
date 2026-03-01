@@ -1,0 +1,4 @@
+# Auto-generated requirements
+mcp[cli]>=1.26.0
+pydantic
+python-dotenv
