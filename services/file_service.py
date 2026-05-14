@@ -4,6 +4,7 @@ File service for handling file operations like scanning, renaming, and organizin
 """
 
 import os
+from utils.extractor import FileContentExtractor
 import shutil
 from models.models import RenameFileIn, ScanFilesIn, MoveFilesIn
 from services.path_validator import PathValidator
@@ -21,34 +22,29 @@ class FileService:
                                 If None, defaults to a predefined list.
         """
         if allowed_directories is None:
-            allowed_directories = [os.path.abspath(r"C:\Users\User\Downloads\TRY")]
+            allowed_directories = [os.path.abspath(r"C:\Users\User\Desktop\new_folder\new_folder")]
         
         self.path_validator = PathValidator(allowed_directories)
 
 
     def scan_files(self, input: ScanFilesIn):
-        """Scan files in a directory with preview of contents."""
+        """Scan files in a directory with comprehensive preview."""
         if not self.path_validator.is_path_safe(input.dir_path):
-            return "שגיאה: הגישה לתיקייה זו חסומה מטעמי אבטחה. ניתן לגשת רק לתיקיות המוגדרות מראש."
+            return "שגיאה: הגישה לתיקייה זו חסומה."
         
-        dir_path = input.dir_path
-        max_preview_length = input.max_preview_length
-
         files_info = []
-        for root, dirs, files in os.walk(dir_path):
+        extractor = FileContentExtractor() # שימוש במחלקה החדשה
+
+        for root, dirs, files in os.walk(input.dir_path):
             for file in files:
                 file_path = os.path.join(root, file)
-                file_extension = os.path.splitext(file)[1]
-
-                try:
-                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                        content = f.read()[:max_preview_length]
-                except Exception:
-                    content = "Unable to read content"
+                
+                # קריאת התוכן באמצעות המחלקה החכמה
+                content = extractor.get_text(file_path, input.max_preview_length)
 
                 files_info.append({
                     "file_name": file,
-                    "file_extension": file_extension,
+                    "file_extension": os.path.splitext(file)[1].lower(),
                     "content_preview": content
                 })
 
